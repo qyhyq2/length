@@ -16,7 +16,7 @@ class Length
   def readFile()
       File.open(@file,"r") do |file|
           while line=file.gets
-              if match = /\s*\d+\s*(\w+)\s*=\s*(\d+.\d*)\s*m\s*/.match(line)       
+              if match = /\s*\d+\s*(\w+)\s*=\s*(\d+\.\d*)\s*m\s*/.match(line)       
                   @map[match[1]] = match[2].to_f
               elsif line.lstrip!=""
                 calculate(toSingle(line),@count)
@@ -36,29 +36,25 @@ class Length
   
   #转化成米为单位
   def transfer(str)
-    if  match = /\s*(\d+(.\d+){0,1})\s*(\w+)/.match(str)
+    if  match = /\s*(\d+(\.\d+)?)\s*(\w+)/.match(str)
       return match[1].to_f * @map[match[3]]
     end
   end
   
   #计算表达式
   def calculate(str,n)
-    if  match = /(\s*\d+(.\d+){0,1}\s*\w+)((\s*([+-])\s*\d+(.\d+){0,1}\s*\w+)*)/.match(str)
+    if  match = /(\s*\d+(\.\d+)?\s*\w+)((\s*([+-])\s*\d+(\.\d+)?\s*\w+)*)/.match(str)
       @result[n] += transfer(match[1])
     end
     if match[3].to_s.lstrip != ""
       substr = match[3]
-      while subMatch = /(([+-])\s*\d+(.\d+){0,1}\s*\w+)(\s*[+-][\d\w\s.]+)*/.match(substr)
+      while subMatch = /(([+-])\s*\d+(\.\d+)?\s*\w+)+?/.match(substr)
         if subMatch[2] == "+"
           @result[n] += transfer(subMatch[1])
         elsif subMatch[2] == "-"
           @result[n] -= transfer(subMatch[1])
         end
-        if subMatch[4].to_s.lstrip != ""
-            substr = subMatch[4]
-        else
-            break
-        end
+        substr = subMatch.post_match
       end
       
     end  end
